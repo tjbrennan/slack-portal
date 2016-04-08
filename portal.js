@@ -12,6 +12,7 @@ function sendMessages (token, teams, payload, callback) {
 
   teamTokens.forEach(function(e) {
     if (e !== token) {
+      console.log(teams[e], payload);
       got(teams[e].incomingWebhookUrl, {
         method: 'POST',
         body: JSON.stringify(payload),
@@ -33,6 +34,16 @@ function sendMessages (token, teams, payload, callback) {
   });
 }
 
+function getEmoji (userId) {
+  var sum = 0;
+
+  for (var i = 0; i < userId.length; i++) {
+    sum += userId.charCodeAt(i);
+  }
+
+  return emojiList[sum % emojiList.length];
+}
+
 module.exports = function (body, callback) {
   log && console.log(new Date(), body);
 
@@ -49,7 +60,7 @@ module.exports = function (body, callback) {
       payload = {
         username: body.user_name,
         text: body.text,
-        icon_emoji: emojiList[userId.replace(/\D/g, '') % emojiList.length]
+        icon_emoji: getEmoji(userId)
       };
 
       sendMessages(token, teams, payload, callback);
