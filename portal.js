@@ -1,47 +1,47 @@
 'use strict';
 
-var got = require('got');
-var emojiList = require('emoji-list');
-var config = require('./config.json');
-var log = config.logging;
+const got = require('got');
+const emojiList = require('emoji-list');
+const config = require('./config.json');
+const log = config.logging;
 
 
 function sendMessages (token, teams, payload, callback) {
-  var teamTokens = Object.keys(teams);
-  var responseCount = 1;
+  const teamTokens = Object.keys(teams);
+  let responseCount = 1;
 
-  teamTokens.forEach(function(e) {
+  teamTokens.forEach(e => {
     if (e !== token) {
-      console.log(teams[e], payload);
+
       got(teams[e].incomingWebhookUrl, {
         method: 'POST',
         body: JSON.stringify(payload),
         retries: 2
-      }, function(error, data, response) {
-        log && console.log([
-          'Message',
-          'to',
-          teams[e].name,
-          response.statusCode,
-          error || data
-        ].join(' '));
+      }).then((response) => {
+        log && console.log(`Message to ${teams[e].name} ${response.statusCode} {response.body}`);
 
         if (++responseCount === teamTokens.length) {
             return callback();
         }
+      }).catch((error) => {
+        log && console.log(`Message to ${teams[e].name} ${error.response.statusCode} {error.response.body}`);
       });
     }
   });
 }
 
 function getEmoji (userId) {
-  var sum = 0;
+  // this is probably slow
+  let charCodeArray = [];
+  let emoji;
 
-  for (var i = 0; i < userId.length; i++) {
-    sum += userId.charCodeAt(i);
+  for (let i = 0; i < userId.length; i++) {
+    charCodeArray.push(userId.charCodeAt(i));
   }
 
-  return emojiList[sum % emojiList.length];
+  emoji = emojiList[charCodeArray.join('') % emojiList.length];
+
+  return emoji;
 }
 
 module.exports = function (body, callback) {
@@ -49,10 +49,10 @@ module.exports = function (body, callback) {
 
   body = body || {};
 
-  var teams = config.teams;
-  var token = body.token;
-  var userId = body.user_id || '';
-  var payload;
+  const teams = config.teams;
+  const token = body.token;
+  const userId = body.user_id || '';
+  let payload;
 
   if (teams[token]) {
     // modifying this may result in an infinite loop
@@ -68,6 +68,7 @@ module.exports = function (body, callback) {
       return callback();
     }
   } else {
+    console.log(body, teams, token);
     return callback(new Error('Invalid token'));
   }
 };

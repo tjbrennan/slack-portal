@@ -1,22 +1,22 @@
 'use strict';
 
-var http = require('http');
-var querystring = require('querystring')
-var portal = require('./portal');
+const http = require('http');
+const querystring = require('querystring')
+const portal = require('./portal');
 
 
 function handle (req, res) {
   res.setHeader('Content-Type', 'application/json');
 
   if (req.method === 'POST') {
-    var body = '';
+    let body = '';
 
-    req.on('data', function(chunk) {
+    req.on('data', (chunk) => {
       body += chunk;
     });
 
     req.on('end', function() {
-        portal(querystring.parse(body), function(error) {
+        portal(querystring.parse(body), (error) => {
           res.end(JSON.stringify({
             text: error || ''
           }));
@@ -28,9 +28,9 @@ function handle (req, res) {
   }
 }
 
-var port = process.env.PORT || 8888;
-var server = http.createServer(handle);
+const port = process.env.PORT || 8888;
+const server = http.createServer(handle);
 
-server.listen(port, function() {
-  console.log('Slack portal ' + port);
+server.listen(port, () => {
+  console.log(`Slack portal ${port}`);
 });

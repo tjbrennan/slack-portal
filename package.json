@@ -18,6 +18,9 @@
   "homepage": "https://github.com/tjbrennan/slack-portal",
   "dependencies": {
     "emoji-list": "^1.0.2",
-    "got": "^5.5.0"
+    "got": "^6.3.0"
+  },
+  "engines": {
+    "node": "4.3.2"
   }
 }

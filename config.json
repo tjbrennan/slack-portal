@@ -7,7 +7,7 @@
     "outgoing_webhook_token_2": {
       "name": "team_name_2",
       "incomingWebhookUrl": "incoming_webhook_url_2"
-    },
+    }
   },
   "logging": true
 }
